@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// == Enums ==
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum LeaveType {
+  ChildBirthRecovery
+  ChildBirthBonding
+  AdoptionBonding
+  FosterCareBonding
+  SeriousIllness
+  SeriousSurgery
+  Caregiver
+  MilitaryCaregiver
+}
+
+enum ApplicationStatus {
+  UNDER_REVIEW
+  APPROVED
+  DENIED
+  WITHDRAWN
+}
+
+// == Tables ===
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  firstName    String
+  lastName     String
+  role         UserRole
+  passwordHash String
+
+  applications Application[]
+}
+
+model Application {
+  id        String            @id @default(uuid())
+  userId    String
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  leaveType LeaveType
+  status    ApplicationStatus @default(UNDER_REVIEW)
+  startDate DateTime
+  endDate   DateTime?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@index([userId])
+}

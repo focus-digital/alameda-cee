@@ -1,0 +1,48 @@
+{
+  // Modern TS, ESM, Node 18/20
+  "compilerOptions": {
+    // Target modern JS runtime features
+    "target": "ES2022",
+    "lib": ["ES2023"],
+
+    // ESM in Node
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true, // don’t rewrite import/export
+
+    // Paths / aliases (project-root based)
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@tests/*": ["tests/*"]
+    },
+
+    // DX & correctness
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "useUnknownInCatchVariables": true,
+    "allowSyntheticDefaultImports": true,
+
+    // Interop & common flags
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // Source layout
+    "rootDir": ".",
+    "outDir": "dist",
+    "sourceMap": true,
+    "inlineSources": true,
+
+    // Keep Node types available
+    "types": ["node"]
+  },
+  // Tell TS what to compile in dev (tests + prisma + src)
+  "include": ["src", "prisma", "node_modules/.prisma/client", "tests", "scripts", "env.d.ts", "bcryptjs.d.ts"],
+  "exclude": ["dist", "node_modules"]
+}

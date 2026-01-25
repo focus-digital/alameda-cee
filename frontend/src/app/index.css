@@ -1,0 +1,126 @@
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
+.app-shell {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}
+
+.app-main {
+  flex: 1 0 auto;
+}
+
+.app-footer {
+  flex-shrink: 0;
+}
+
+.app-footer a,
+.app-footer .usa-link {
+  color: #ffffff;
+}
+
+.app-footer .usa-identifier__nav {
+  justify-content: center;
+  text-align: center;
+}
+
+.app-footer .usa-identifier__nav__list {
+  justify-content: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Mobile-responsive table wrapper */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure main content doesn't overflow */
+.usa-layout-docs__main {
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+/* Fix USWDS input max-width in forms */
+.usa-input {
+  max-width: none !important;
+}
+
+/* Fix header nav overflow on desktop */
+.usa-header {
+  overflow: visible;
+}
+
+.usa-nav-container {
+  overflow: visible;
+}
+
+.usa-nav__secondary {
+  position: relative;
+  right: 0;
+}
+
+@media (min-width: 64em) {
+  .usa-nav__secondary-links {
+    position: absolute;
+    right: 0;
+    top: -2rem;
+  }
+}
+
+/* Consistent smaller typography for headings */
+h2 {
+  font-size: 1.375rem; /* 22px */
+  line-height: 1.3;
+}
+
+h3 {
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.4;
+}
+
+.usa-card__header h3 {
+  font-size: 1.125rem;
+}
+
+/* Mobile optimizations */
+@media (max-width: 639px) {
+  .table-responsive table {
+    min-width: 500px;
+  }
+
+  .usa-section {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  h1, h2, h3 {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .usa-button {
+    min-height: 44px;
+  }
+
+  .usa-form {
+    max-width: 100%;
+  }
+
+  .app-footer .usa-identifier__nav__list {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

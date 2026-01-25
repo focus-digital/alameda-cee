@@ -1,0 +1,32 @@
+image: ghcr.io/focus-digital/fst-api
+
+ssh:
+  user: deploy
+
+servers:
+  web:
+    hosts:
+      - 178.156.200.172
+
+registry:
+  server: ghcr.io
+  username: focus-digital
+  password:
+    - REGISTRY_PASSWORD
+
+env:
+  clear:
+    NODE_ENV: production
+    PORT: 3000
+    DATABASE_URL: "file:/data/fst.db"
+
+proxy:
+  app_port: 3000
+  ssl: true
+  healthcheck:
+    path: /health
+    interval: 3
+    timeout: 3
+
+builder:
+  arch: amd64

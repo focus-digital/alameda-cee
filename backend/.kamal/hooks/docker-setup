@@ -1,0 +1,8 @@
+#!/bin/sh
+
+echo "Docker was set up on $KAMAL_HOSTS..."
+
+# add the deploy user to docker group
+# ssh root@${KAMAL_HOST} "usermod -aG docker deploy"
+
+echo "Docker group setup complete."

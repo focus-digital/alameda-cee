@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# A sample pre-deploy hook
+#
+# Checks the Github status of the build, waiting for a pending build to complete for up to 720 seconds.
+#
+# Fails unless the combined status is "success"
+#
+# These environment variables are available:
+# KAMAL_RECORDED_AT
+# KAMAL_PERFORMER
+# KAMAL_VERSION
+# KAMAL_HOSTS
+# KAMAL_COMMAND
+# KAMAL_SUBCOMMAND
+# KAMAL_ROLES (if set)
+# KAMAL_DESTINATION (if set)
+
+# ran any pending database migrations
+echo "Running Prisma database migrations"
+kamal app exec web "yarn prisma migrate deploy"
+echo "Migrations complete"
