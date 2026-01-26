@@ -18,7 +18,7 @@ env:
   clear:
     NODE_ENV: production
     PORT: 3000
-    DATABASE_URL: "file:/data/fst.db"
+    DATABASE_URL: "file:/data/cee.db"
 
 proxy:
   app_port: 3000

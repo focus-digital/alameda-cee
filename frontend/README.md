@@ -41,6 +41,7 @@ Start your backend first (see [here](../backend/README.md) ), then in your `fron
 1. run `cp .env.example .env` to duplicate local env variables, update as applicable
 1. run `yarn` to install all dependencies
 1. run `yarn dev` to launch the frontend at http://localhost:5173
+1. Explore the frontend and update any pages as necessary
 
 If you are developing with AI assistants, add the uswds MCP server for better support on using USWDS components.
 1. Clone this repo in your main development folder: https://github.com/focus-digital/react-uswds-mcp.git
@@ -66,6 +67,11 @@ REACT_USWDS_PACKAGE = "@trussworks/react-uswds"
     }
   }
 }
+```
+
+Claude command
+```
+claude mcp add-json "react-uswds-mcp" '{"command": "node", "args": ["/absolute/path/react-uswds-mcp/dist/index.js"]}'
 ```
 
 Then update the following files as necessary and as your repo evolves:
@@ -100,6 +106,4 @@ Steps:
 ```
 VITE_API_URL=https://api.example.com
 ```
-
-1.
 

@@ -45,19 +45,19 @@ tests/ → test files
 
 API call flow:
 ```
-Routes  → plugins → Services → Repos → prisma
+Routes → plugins → Services → Repos → prisma
 ```
 
 ## Getting started
 
 Make sure the prerequisites above are installed. Then in the `backend` folder:
-1. globally rename `fst.db` to a sqlite database name of your preference
 1. run `cp .env.example .env` to duplicate local env variables, update as applicable. Update the environment variables as applicable i.e. set your LLM API key for the AI assistant feature and `EMAIL_SERVICE_API_TOKEN` for the email service
 1. run `yarn` to install all dependencies
 1. run `yarn db:reset` to run initial migration and data seed
-1. run `yarn api` to start the API at http://localhost:3000
+1. run `yarn dev` to start the API (check at http://localhost:3000/health)
 1. view the swagger API documentation at http://localhost:3000/docs
 1. run `yard db:studio` in a separate terminal window to view db tables
+1. run tests `yarn test`
 
 Then update the following files as necessary:
 *  `.env`

@@ -50,7 +50,7 @@ export function PageHeader({ user, mobileNavOpen, setMobileNavOpen, onLogout }: 
         <div className="usa-navbar">
           <Title id="basic-logo">
             <a href="javascript:void(0);" title="Home" aria-label="Home">
-              {'<Project title>'}
+              {'First 5 Alameda CEE Demo'}
             </a>
           </Title>
           {user !== null && (
