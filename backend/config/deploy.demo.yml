@@ -1,7 +1,7 @@
-service: fst-api-demo
+service: alameda-cee-api-demo
 
 volumes:
-  - /var/lib/fst/demo-data:/data
+  - /var/lib/alameda-cee/demo-data:/data
 
 registry:
   server: ghcr.io
@@ -12,11 +12,11 @@ registry:
 env:
   clear:
     TENANT_ID: demo
-    ALLOWED_ORIGIN: "https://fst-demo.focus-labs.io"
+    ALLOWED_ORIGIN: "https://alameda-cee-demo.focus-labs.io"
     DEMO_MODE: true
   secret:
     - ANTHROPIC_API_KEY
     - EMAIL_SERVICE_API_TOKEN
 
 proxy:
-  host: fst-demo-api.focus-labs.io
+  host: alameda-cee-demo-api.focus-labs.io

@@ -1,4 +1,4 @@
-image: ghcr.io/focus-digital/fst-api
+image: ghcr.io/focus-digital/alameda-cee-api
 
 ssh:
   user: deploy

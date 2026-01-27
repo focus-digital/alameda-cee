@@ -1,4 +1,4 @@
-import { Button, Identifier, IdentifierLinkItem, IdentifierLinks, IdentifierMasthead, Link } from '@trussworks/react-uswds';
+import { Button, Identifier, IdentifierLinkItem, IdentifierLinks, Link } from '@trussworks/react-uswds';
 import { useState, type ReactNode } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { PublicHeader } from './components/public-header';

@@ -57,7 +57,7 @@ describe('DemoLoginPage', () => {
 
     renderApp(history)
 
-    expect(screen.getByRole('heading', { name: /demo login/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /demo admin login/i })).toBeInTheDocument();
     const userSelect = await screen.findByLabelText(/^user$/i, { selector: 'select' });
     await screen.findByRole('option', { name: /demo user/i });
     await user.selectOptions(userSelect, 'user@example.com');

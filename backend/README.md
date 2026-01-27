@@ -191,7 +191,7 @@ Automatic HTTPS Rewrites
 - Cloudflare Dashboard → SSL/TLS → Edge Certificates: confirm you see certificates issues for your subdomains your created above
 
 ### Updating your deployment config
-- Deployment config is under `config/deploy.yml`
+- Deployment config is under `config/deploy.yml` and `config/deploy.demo.yml`
 - Update the config to match your relevant details
 
 #### Secrets
@@ -224,10 +224,10 @@ We've setup deployment related commands to be environment specific. This repo cu
 - Make sure your ssh agent is running and has your hetzner ssh key added
 - Make sure docker is running locally
 - Make sure your secrets are exported in your local machine
-- Run `yarn dev:setup` if running a deploy for the **first time ever** on a fresh cloud VM
-- Run `yarn dev:deploy` to build, migrate, and run the API (migration is run through the pre-deploy hook at `./kamal/hooks/pre-deploy`)
-- Run the data seed first time, and as needed by `yarn dev:seed`
-- Run `yarn dev:logs` to follow the server logs
+- Run `yarn demo:setup` if running a deploy for the **first time ever** on a fresh cloud VM
+- Run `yarn demo:deploy` to build, migrate, and run the API (migration is run through the pre-deploy hook at `./kamal/hooks/pre-deploy`)
+- Run the data seed first time, and as needed by `yarn demo:seed`
+- Run `yarn demo:logs` to follow the server logs
 - Test your API with something like `curl -I your-sub-domain-api.your-domain.com`
 
 You can read more about hooks [here](https://kamal-deploy.org/docs/hooks/overview/).
