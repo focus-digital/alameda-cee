@@ -85,7 +85,7 @@ describe('LoginPage', () => {
     });
   });
 
-  it('redirects to home after a successful login and shows the user email', async () => {
+  it('redirects to admin dashboard after a successful login', async () => {
     const user = userEvent.setup();
     const history = createMemoryHistory({ initialEntries: ['/login'] });
 
@@ -99,8 +99,7 @@ describe('LoginPage', () => {
 
     expect(loginSpy).toHaveBeenCalledTimes(1);
 
-    expect(await screen.findByText(/home page/i)).toBeInTheDocument();
-    expect(screen.getByText(/welcome back, agent/i)).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /interest submissions/i })).toBeInTheDocument();
   });
 
   it('stays on the login page when login fails', async () => {
@@ -118,7 +117,7 @@ describe('LoginPage', () => {
 
     expect(loginSpy).toHaveBeenCalledTimes(1);
     expect(history.location.pathname).toBe('/login');
-    expect(screen.queryByText(/home page/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/interest submissions/i)).not.toBeInTheDocument();
   });
 
   it('lets the user toggle password visibility', async () => {
