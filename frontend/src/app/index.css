@@ -95,6 +95,36 @@ h3 {
   font-size: 1.125rem;
 }
 
+/* Remove bullets from grid layouts */
+.usa-card-group,
+.grid-row,
+[class*="grid-col"] {
+  list-style: none;
+  padding-left: 0;
+}
+
+/* Compact filter checkboxes */
+.usa-form-group .usa-checkbox {
+  margin-top: 0.25rem;
+}
+
+.usa-form-group .usa-checkbox__label {
+  font-size: 0.875rem;
+  padding-left: 1.75rem;
+}
+
+.usa-form-group .usa-checkbox__label::before {
+  height: 1rem;
+  width: 1rem;
+}
+
+.usa-form-group .usa-checkbox__input:checked + .usa-checkbox__label::after {
+  left: 0.25rem;
+  top: 0.25rem;
+  height: 0.5rem;
+  width: 0.75rem;
+}
+
 /* Mobile optimizations */
 @media (max-width: 639px) {
   .table-responsive table {

@@ -1,4 +1,4 @@
-# Typescript Frontend Templates
+# First 5 Alameda CEE Frontend
 
 ## Prerequisites
 - Typescript

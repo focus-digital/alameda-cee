@@ -29,9 +29,12 @@ export function setupUserAuth(fastify: FastifyInstance, options: UserAuthOptions
     const url = request.raw.url ?? '';
     const path = url.split('?')[0] ?? '';
 
+    // Check if path is exempt from authentication requirement
+    let isExempt = false;
     for (const exemptPath of exemptPaths) {
       if (path.includes(exemptPath)) {
-        return;
+        isExempt = true;
+        break;
       }
     }
 
@@ -44,16 +47,18 @@ export function setupUserAuth(fastify: FastifyInstance, options: UserAuthOptions
       token = request.cookies?.[SESSION_COOKIE_NAME];
     }
 
-    if (!token) {
-      return reply.code(401).send({ error: 'Unauthorized' });
+    // Always try to authenticate if token is provided (even on exempt paths)
+    // This allows routes to optionally use user info even when auth is not required
+    if (token) {
+      const user = authService.authenticate(token);
+      if (user) {
+        request.user = user;
+      }
     }
 
-    const user = authService.authenticate(token);
-
-    if (!user) {
+    // Only require authentication for non-exempt paths
+    if (!isExempt && !request.user) {
       return reply.code(401).send({ error: 'Unauthorized' });
     }
-
-    request.user = user;
   });
 }

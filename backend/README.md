@@ -1,7 +1,4 @@
-# Typescript Backend Template
-
-> [!TODO]
-> Update the title of this readme to your relevant project details.
+# First 5 Alameda CEE Backend
 
 ## Prerequisites
 - NodeJS

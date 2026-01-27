@@ -35,6 +35,45 @@ enum ApplicationStatus {
   WITHDRAWN
 }
 
+// == CEE Enums ==
+
+enum ProviderType {
+  FAMILY_CHILD_CARE
+  CENTER_BASED
+}
+
+enum CareType {
+  FULL_DAY
+  PART_DAY
+  BEFORE_AFTER_SCHOOL
+  DROP_IN
+}
+
+enum InterestStatus {
+  NEW
+  IN_PROGRESS
+  CONTACTED
+  CLOSED
+}
+
+enum ContactMethod {
+  PHONE
+  EMAIL
+  TEXT
+}
+
+enum PreferredLanguage {
+  ENGLISH
+  SPANISH
+}
+
+enum AgeRange {
+  INFANT
+  TODDLER
+  PRESCHOOL
+  SCHOOL_AGE
+}
+
 // == Tables ===
 model User {
   id           String   @id @default(uuid())
@@ -59,4 +98,86 @@ model Application {
   updatedAt DateTime          @updatedAt
 
   @@index([userId])
+}
+
+// == CEE Models ==
+
+model Provider {
+  id                String       @id @default(uuid())
+  name              String
+  type              ProviderType
+  address           String
+  city              String
+  zipCode           String
+  latitude          Float?
+  longitude         Float?
+  phone             String?
+  email             String?
+  website           String?
+  descriptionEn     String?
+  descriptionEs     String?
+  acceptsSubsidy    Boolean      @default(true)
+  ageRangesServed   String // JSON array stored as string: ["INFANT", "TODDLER"]
+  careTypesOffered  String // JSON array stored as string: ["FULL_DAY", "PART_DAY"]
+  serviceAttributes String? // JSON object for additional attributes
+  isActive          Boolean      @default(true)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  interests Interest[]
+
+  @@index([zipCode])
+  @@index([type])
+  @@index([isActive])
+}
+
+model Interest {
+  id String @id @default(uuid())
+
+  // Provider selection
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id])
+
+  // Eligibility screener data (illustrative)
+  householdZipCode     String?
+  childAgeRange        AgeRange?
+  careTypePreference   CareType?
+  householdSize        Int?
+  incomeRange          String? // e.g., "Under $30k", "$30k-$50k", etc.
+  desiredStartDate     DateTime?
+  eligibilityIndicator String? // "LIKELY_ELIGIBLE", "NEEDS_REVIEW", "UNKNOWN"
+
+  // Family contact info
+  contactMethod     ContactMethod?
+  contactPhone      String?
+  contactEmail      String?
+  preferredLanguage PreferredLanguage @default(ENGLISH)
+  notes             String?
+
+  // Status tracking
+  status     InterestStatus @default(NEW)
+  isComplete Boolean        @default(false) // Completeness flag
+
+  // Timestamps
+  submittedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  adminNotes InterestNote[]
+
+  @@index([providerId])
+  @@index([status])
+  @@index([isComplete])
+  @@index([submittedAt])
+}
+
+model InterestNote {
+  id         String   @id @default(uuid())
+  interestId String
+  interest   Interest @relation(fields: [interestId], references: [id], onDelete: Cascade)
+  authorId   String // User ID of admin who wrote the note
+  content    String
+  createdAt  DateTime @default(now())
+
+  @@index([interestId])
 }

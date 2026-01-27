@@ -13,20 +13,25 @@ import { AuthService } from '@/service/authService.js';
 import { authRoutes } from '@/api/routes/auth-routes.js';
 import { userRoutes } from '@/api/routes/user-routes.js';
 import { demoRoutes } from '@/api/routes/demo-routes.js';
-import { ApplicationService } from '@/service/applicationService.js';
-import { applicationRoutes } from '@/api/routes/application-routes.js';
 import { AiService } from './service/aiService.js';
 import { aiRoutes } from './api/routes/ai-routes.js';
+import { ProviderService } from '@/service/providerService.js';
+import { providerRoutes } from '@/api/routes/provider-routes.js';
+import { InterestService } from '@/service/interestService.js';
+import { interestRoutes } from '@/api/routes/interest-routes.js';
 
 export interface ServerDependencies {
   prisma?: PrismaClient;
   userService?: UserService;
   authService?: AuthService;
-  applicationService?: ApplicationService;
   aiService?: AiService;
+  providerService?: ProviderService;
+  interestService?: InterestService;
 }
 
-export const AUTH_EXEMPT_PATHS = ['/health', '/login', '/logout', '/demo', '/docs'];
+// Public paths that don't require authentication
+// Note: POST /interests is public but GET /interests requires admin auth (handled in route)
+export const AUTH_EXEMPT_PATHS = ['/health', '/login', '/logout', '/demo', '/docs', '/providers', '/interests'];
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN;
 const allowedOrigins = ALLOWED_ORIGIN ? [ALLOWED_ORIGIN] : [];
 
@@ -60,9 +65,11 @@ export function buildServer(
     dependencies.userService ?? new UserService(prisma);
   const authService =
     dependencies.authService ?? new AuthService(prisma);
-  const applicationService =
-    dependencies.applicationService ?? new ApplicationService(prisma);
   const aiService = dependencies.aiService ?? new AiService();
+  const providerService =
+    dependencies.providerService ?? new ProviderService(prisma);
+  const interestService =
+    dependencies.interestService ?? new InterestService(prisma);
 
   // Middleware
   setupUserAuth(fastify, { authService });
@@ -71,9 +78,10 @@ export function buildServer(
   registerHealthApi(fastify);
   fastify.register(authRoutes, { dependencies: { authService, userService }});
   fastify.register(userRoutes, { dependencies: { userService }});
-  fastify.register(applicationRoutes, { dependencies: { applicationService }});
   fastify.register(demoRoutes, {dependencies: { userService, prisma }});
-  fastify.register(aiRoutes, { dependencies: { aiService } } );
+  fastify.register(aiRoutes, { dependencies: { aiService } });
+  fastify.register(providerRoutes, { dependencies: { providerService }});
+  fastify.register(interestRoutes, { dependencies: { interestService }});
   fastify.addHook('onClose', async () => {
     if (!dependencies.prisma) {
       await prisma.$disconnect();
@@ -112,8 +120,8 @@ function setupSwaggerDocs(fastify: FastifyInstance) {
   fastify.register(fastifySwagger, {
     openapi: {
       info: {
-        title: 'Fullstack Template API',
-        description: 'HTTP API documentation',
+        title: 'First 5 Alameda CEE API',
+        description: 'Coordinated Eligibility & Enrollment API',
         version: '1.0.0',
       },
       servers: [{ url: '/' }],

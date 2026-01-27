@@ -2,44 +2,98 @@ import { Suspense } from 'react'
 import { Navigate, useLocation, useRoutes } from 'react-router-dom'
 import { useAuth } from '@/shared/hooks/auth-queries'
 import { AppLayout } from './layout';
-import { HomePage } from '@/pages/home/home-page';
-import { ApplicationsPage } from '@/pages/applications/applications-page';
+import { PublicLayout } from './public-layout';
 import { LoginPage } from '@/pages/auth/login-page';
 import { DemoLoginPage } from '@/pages/auth/demo-login-page';
 import { AssistancePage } from '@/pages/ai/assistance-page';
 import { NotFoundPage } from '@/pages/not-found-page';
+// CEE Family Flow (Public)
+import { EligibilityScreenerPage } from '@/pages/family/eligibility-screener-page';
+import { ProviderSearchPage } from '@/pages/family/provider-search-page';
+import { ConfirmationPage } from '@/pages/family/confirmation-page';
+import { InterestFormPage } from '@/pages/family/interest-form-page';
+// CEE Admin Flow
+import { IntakeDashboardPage } from '@/pages/admin/intake-dashboard-page';
+import { InterestDetailPage } from '@/pages/admin/interest-detail-page';
 
-const ROUTES = [    
+const ROUTES = [
+  // Public CEE routes (no auth required)
   {
     path: '/',
+    element: <PublicLayout />,
+    children: [
+      {
+        index: true,
+        element: <EligibilityScreenerPage />,
+      },
+      {
+        path: 'eligibility',
+        element: <EligibilityScreenerPage />,
+      },
+      {
+        path: 'providers',
+        element: <ProviderSearchPage />,
+      },
+      {
+        path: 'interest/:providerId',
+        element: <InterestFormPage />,
+      },
+      {
+        path: 'confirmation',
+        element: <ConfirmationPage />,
+      },
+    ],
+  },
+  // Authenticated routes (Admin)
+  {
+    path: '/admin',
+    element: <AppLayout />,
+    children: [
+      {
+        path: 'dashboard',
+        element: <IntakeDashboardPage />,
+      },
+      {
+        path: 'interests/:id',
+        element: <InterestDetailPage />,
+      },
+    ]
+  },
+  // Auth routes
+  {
+    path: '/login',
     element: <AppLayout />,
     children: [
       {
         index: true,
-        element: <HomePage />
-      },
-      {
-        path: '/applications',
-        element: <ApplicationsPage />
-      },
-      {
-        path: '/login',
         element: <LoginPage />,
       },
+    ]
+  },
+  {
+    path: '/demo-login',
+    element: <AppLayout />,
+    children: [
       {
-        path: '/demo-login',
+        index: true,
         element: <DemoLoginPage />,
       },
+    ]
+  },
+  {
+    path: '/assistance',
+    element: <AppLayout />,
+    children: [
       {
-        path: '/assistance',
-        element:<AssistancePage />
-      }
+        index: true,
+        element: <AssistancePage />
+      },
     ]
   },
   {
     path: '*',
     element: <NotFoundPage />,
-  }, 
+  },
 ];
 
 export function AppRouter() {
@@ -51,16 +105,19 @@ export function AppRouter() {
   const loginRoute = isDemoMode ? '/demo-login' : '/login';
   const isAlreadyOnLogin = location.pathname.includes(loginRoute);
 
-  console.log('location.pathname', location.pathname, !!user, isAlreadyOnLogin);
+  // Check if current path is an admin route
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
-  const next = `${location.pathname}${location.search}${location.hash}`
-  if (!user && !isAlreadyOnLogin) {
+  // Redirect to login if accessing admin route without auth
+  if (isAdminRoute && !user && !isAlreadyOnLogin) {
+    const next = `${location.pathname}${location.search}${location.hash}`
     return <Navigate to={loginRoute} replace state={{ from: next }} />
   }
-  else if (user && isAlreadyOnLogin) {
-    console.log('go to /');
-    return <Navigate to="/" replace state={{ from: next }} />
-  }  
+
+  // Redirect to admin dashboard after login
+  if (user && isAlreadyOnLogin) {
+    return <Navigate to="/admin/dashboard" replace />
+  }
 
   return <Suspense fallback={<div>Loading...</div>}>{element}</Suspense>
 }

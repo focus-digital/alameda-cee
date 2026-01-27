@@ -15,5 +15,3 @@ It includes:
 
 ## Getting Started
 * First go through setup in READMEs under [/backend/README.md](/backend/README.md) and [/frontend/README.md](/frontend/README.md).
-
-Then checkout the development [Guides](/docs/GUIDES.md).
