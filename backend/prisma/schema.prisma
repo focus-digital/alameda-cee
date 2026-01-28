@@ -86,6 +86,7 @@ model User {
   applications Application[]
 }
 
+// Not used atm
 model Application {
   id        String            @id @default(uuid())
   userId    String

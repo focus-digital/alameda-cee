@@ -160,7 +160,7 @@ export class InterestService {
 
     try {
       await this.emailService.sendEmail({
-        from: "First 5 Alameda <noreply@civic-engine.io>",
+        from: "First 5 Alameda (CEE Demo) <noreply@focus-labs.io>",
         to: email,
         subject,
         html,
