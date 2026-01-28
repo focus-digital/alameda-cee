@@ -159,9 +159,6 @@ export function InterestDetailPage() {
                 <Tag className={statusColors[interest.status]}>
                   {statusLabels[interest.status]}
                 </Tag>
-                <span className="text-base">
-                  {interest.isComplete ? 'Complete Submission' : 'Incomplete Submission'}
-                </span>
               </div>
 
               <FormGroup className="margin-top-3">
