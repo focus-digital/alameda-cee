@@ -1,13 +1,35 @@
 # Plan: Create SmsService
 
 ## Context
-The codebase already captures `contactPhone` and `contactMethod = "TEXT"` on interest submissions but has no SMS-sending implementation. This plan adds an `SmsService` using Twilio, mirroring the existing `EmailService` pattern.
+The codebase captures `contactPhone` and `contactMethod` on interest submissions. The `ContactMethod` enum has three values: `EMAIL`, `PHONE`, and `TEXT`. Currently only email is sent on submission and the confirmation page only acknowledges email. This plan adds `SmsService` using Twilio for PHONE/TEXT methods and updates the confirmation page to reflect the correct contact method.
+
+| Contact Method | Backend action | Confirmation page shows |
+|---|---|---|
+| `EMAIL` | Send confirmation email (already done) | "A confirmation email has been sent to [email]" (already done) |
+| `TEXT` | Send confirmation SMS → SmsService | "A confirmation text has been sent to [phone]" |
+| `PHONE` | Send confirmation SMS → SmsService | "We will give you a call at [phone]" |
+
+## Full Integration Flow
+
+```
+Frontend (interest-form-page.tsx:192) passes { email, phone, contactMethod, language } to navigate()
+  → ConfirmationPage reads state and shows the right message per contactMethod
+  → POST /api/interests (interest-routes.ts:34)
+    → InterestService.submitInterest() (interestService.ts:37)
+      → [existing] contactMethod === 'EMAIL' → sendConfirmationEmail() → EmailService.sendEmail()
+      → [NEW]      contactMethod === 'TEXT' || 'PHONE' → sendConfirmationSms() → SmsService.sendSms()
+```
 
 ## Critical Files
-- **Reference:** `backend/src/service/emailService.ts` — pattern to follow exactly
-- **New file:** `backend/src/service/smsService.ts` — to be created
-- **Dependencies:** `backend/package.json` — add `twilio` package
-- **Env example:** `backend/.env.example` — add Twilio env var stubs
+| File | Change |
+|------|--------|
+| `backend/src/service/smsService.ts` | **Create** — new service |
+| `backend/src/service/interestService.ts` | **Modify** — initialize & call SmsService |
+| `backend/tests/service/smsService.test.ts` | **Create** — unit tests |
+| `backend/package.json` | Add `twilio` dependency |
+| `backend/.env` + `backend/.env.example` | Add Twilio env vars |
+| `frontend/src/pages/family/interest-form-page.tsx` | **Modify** — pass `phone` + `contactMethod` to navigate() (line 192) |
+| `frontend/src/pages/family/confirmation-page.tsx` | **Modify** — show phone confirmation message for PHONE/TEXT |
 
 ---
 
@@ -16,12 +38,12 @@ The codebase already captures `contactPhone` and `contactMethod = "TEXT"` on int
 ### 1. Install Twilio SDK
 ```
 yarn workspace backend add twilio
-yarn workspace backend add -D @types/twilio   # if needed; twilio ships its own types
 ```
+(Twilio ships its own types — no `@types/twilio` needed.)
 
 ### 2. Create `backend/src/service/smsService.ts`
 
-Model after `emailService.ts`:
+Mirrors `emailService.ts` structure exactly:
 
 ```ts
 import Twilio from 'twilio';
@@ -55,9 +77,112 @@ export class SmsService {
 }
 ```
 
-### 3. Update env files
+### 3. Modify `backend/src/service/interestService.ts`
 
-**`backend/.env.example`** — add commented stubs:
+**a) Import SmsService** alongside EmailService import.
+
+**b) Add `smsService` field and initialize in constructor** (mirroring emailService try/catch pattern, lines 25–34):
+```ts
+private readonly smsService?: SmsService;
+
+// inside constructor:
+try {
+  this.smsService = new SmsService();
+} catch {
+  // SMS not configured — silently skip
+}
+```
+
+**c) Trigger SMS in `submitInterest()`** after the existing email block (~line 55):
+```ts
+const wantsSms = data.contactMethod === 'TEXT' || data.contactMethod === 'PHONE';
+if (data.contactPhone && wantsSms && this.smsService) {
+  await this.sendConfirmationSms(data.contactPhone, data.contactMethod, data.preferredLanguage, interest);
+}
+```
+
+**d) Add private `sendConfirmationSms()` method** — body differs by method and language:
+```ts
+private async sendConfirmationSms(
+  phone: string,
+  contactMethod: string,
+  language: string | undefined,
+  interest: Interest,
+) {
+  const isSpanish = language === 'es';
+  const isText = contactMethod === 'TEXT';
+
+  const body = isSpanish
+    ? isText
+      ? `Gracias por su interés en el programa CEE. Hemos recibido su solicitud y nos pondremos en contacto con usted pronto por mensaje de texto.`
+      : `Gracias por su interés en el programa CEE. Hemos recibido su solicitud y le llamaremos pronto.`
+    : isText
+      ? `Thank you for your interest in the CEE program. We received your request and will follow up with you by text soon.`
+      : `Thank you for your interest in the CEE program. We received your request and will give you a call soon.`;
+
+  await this.smsService!.sendSms({ to: phone, body });
+}
+```
+
+### 4. Modify `frontend/src/pages/family/interest-form-page.tsx`
+
+**Line 192** — pass `phone` and `contactMethod` in the navigation state alongside `email`:
+```ts
+navigate('/confirmation', {
+  state: { email: email || undefined, phone: phone || undefined, contactMethod, language },
+});
+```
+
+### 5. Modify `frontend/src/pages/family/confirmation-page.tsx`
+
+**a) Update translations** — add `textSent` and `phoneSent` keys to both `en` and `es`:
+```ts
+en: {
+  // ...existing keys...
+  textSent: 'A confirmation text has been sent to',
+  phoneSent: 'We will give you a call at',
+},
+es: {
+  // ...existing keys...
+  textSent: 'Se ha enviado un mensaje de confirmacion a',
+  phoneSent: 'Le llamaremos al',
+},
+```
+
+**b) Update state type** (line 39) to include `phone` and `contactMethod`:
+```ts
+const state = location.state as {
+  email?: string;
+  phone?: string;
+  contactMethod?: 'EMAIL' | 'PHONE' | 'TEXT';
+  language?: 'en' | 'es';
+} | null;
+const phone = state?.phone;
+const contactMethod = state?.contactMethod;
+```
+
+**c) Replace the email-only block** (lines 57–61) with contact-method-aware rendering:
+```tsx
+{contactMethod === 'EMAIL' && email && (
+  <p className="margin-bottom-3">
+    {t.emailSent} <strong>{email}</strong>
+  </p>
+)}
+{contactMethod === 'TEXT' && phone && (
+  <p className="margin-bottom-3">
+    {t.textSent} <strong>{phone}</strong>
+  </p>
+)}
+{contactMethod === 'PHONE' && phone && (
+  <p className="margin-bottom-3">
+    {t.phoneSent} <strong>{phone}</strong>
+  </p>
+)}
+```
+
+### 6. Update env files
+
+**`backend/.env.example`** — add after `EMAIL_SERVICE_API_TOKEN`:
 ```
 # TWILIO_ACCOUNT_SID=your-twilio-account-sid
 # TWILIO_AUTH_TOKEN=your-twilio-auth-token
@@ -71,9 +196,7 @@ TWILIO_AUTH_TOKEN=<your-auth-token>
 TWILIO_PHONE_NUMBER=<your-twilio-number>
 ```
 
-### 4. Create `backend/tests/service/smsService.test.ts`
-
-The project uses Vitest. Mock the `twilio` module with `vi.mock` and test:
+### 7. Create `backend/tests/service/smsService.test.ts`
 
 ```ts
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -121,6 +244,8 @@ describe('SmsService', () => {
 ---
 
 ## Verification
-1. `yarn workspace backend tsc --noEmit` — confirms no type errors
+1. `yarn workspace backend tsc --noEmit` — no type errors
 2. `yarn workspace backend vitest run tests/service/smsService.test.ts` — all 3 unit tests pass
-3. Manual smoke test: set real Twilio credentials in `.env.local` and call `sendSms({ to: '+1...', body: 'test' })` from a route or script.
+3. Submit the interest form selecting **Text** → confirmation page shows "A confirmation text has been sent to [phone]" and Twilio delivers SMS
+4. Submit selecting **Phone** → confirmation page shows "We will give you a call at [phone]" and Twilio delivers SMS
+5. Submit selecting **Email** → existing behavior unchanged
