@@ -1,7 +1,13 @@
-# Plan: Create SmsService
+# User Story: SMS Confirmation on Interest Form Submission
+
+> As a user, I want to receive a text message confirming my submission of an interest form when I identify phone or text message as my preferred communication method.
 
 ## Context
 The codebase captures `contactPhone` and `contactMethod` on interest submissions. The `ContactMethod` enum has three values: `EMAIL`, `PHONE`, and `TEXT`. Currently only email is sent on submission and the confirmation page only acknowledges email. This plan adds `SmsService` using Twilio for PHONE/TEXT methods and updates the confirmation page to reflect the correct contact method.
+
+**Consent & cost considerations:**
+- `TEXT` — by selecting text message as their preferred contact method, the user implicitly consents to receiving an SMS and acknowledges any carrier messaging costs. No additional permission step is needed.
+- `PHONE` — the user has only indicated they want a phone call. Sending them an SMS confirmation is an assumption that they also accept texts and may incur a cost. **Future work:** before texting PHONE users, we should add an explicit opt-in (e.g. a checkbox: "Also send me a text confirmation") to obtain consent. For now, this plan sends the SMS for both PHONE and TEXT, but this should be revisited before production.
 
 | Contact Method | Backend action | Confirmation page shows |
 |---|---|---|
