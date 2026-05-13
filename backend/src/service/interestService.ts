@@ -1,7 +1,8 @@
-import { InterestStatus, PreferredLanguage } from "@/domain/enums.js";
+import { ContactMethod, InterestStatus, PreferredLanguage } from "@/domain/enums.js";
 import type { Interest, InterestNote, User } from "@/domain/types.js";
 import { InterestRepo, type InterestCreate } from "@/repo/interestRepo.js";
 import { EmailService } from "./emailService.js";
+import { SmsService } from "./smsService.js";
 import type { PrismaClient } from "@prisma/client";
 
 export class NotFoundError extends Error {
@@ -21,6 +22,7 @@ export class ForbiddenError extends Error {
 export class InterestService {
   public interestRepo: InterestRepo;
   private emailService: EmailService | null = null;
+  private smsService: SmsService | null = null;
 
   constructor(prisma: PrismaClient) {
     this.interestRepo = new InterestRepo(prisma);
@@ -30,6 +32,13 @@ export class InterestService {
       this.emailService = new EmailService();
     } catch {
       console.warn("Email service not configured - confirmation emails will be skipped");
+    }
+
+    // Initialize SMS service if configured
+    try {
+      this.smsService = new SmsService();
+    } catch {
+      console.warn("SMS service not configured - confirmation texts will be skipped");
     }
   }
 
@@ -52,6 +61,15 @@ export class InterestService {
     // Send confirmation email if email is provided and service is configured
     if (data.contactEmail && this.emailService) {
       await this.sendConfirmationEmail(data.contactEmail, data.preferredLanguage, interest);
+    }
+
+    // Send confirmation SMS for phone/text contact methods
+    if (
+      data.contactPhone &&
+      this.smsService &&
+      (data.contactMethod === ContactMethod.TEXT || data.contactMethod === ContactMethod.PHONE)
+    ) {
+      await this.sendConfirmationSms(data.contactPhone, data.contactMethod, data.preferredLanguage);
     }
 
     return interest;
@@ -115,6 +133,32 @@ export class InterestService {
       throw new ForbiddenError("Only admins can export interests");
     }
     return this.interestRepo.listAll(true);
+  }
+
+  private async sendConfirmationSms(
+    phone: string,
+    contactMethod: ContactMethod,
+    language: PreferredLanguage = PreferredLanguage.ENGLISH
+  ): Promise<void> {
+    if (!this.smsService) return;
+
+    const isSpanish = language === PreferredLanguage.SPANISH;
+    const isText = contactMethod === ContactMethod.TEXT;
+
+    const body = isSpanish
+      ? isText
+        ? "Gracias por su interes en el programa CEE. Hemos recibido su solicitud y nos pondremos en contacto con usted pronto por mensaje de texto."
+        : "Gracias por su interes en el programa CEE. Hemos recibido su solicitud y le llamaremos pronto."
+      : isText
+        ? "Thank you for your interest in the CEE program. We received your request and will follow up with you by text soon."
+        : "Thank you for your interest in the CEE program. We received your request and will give you a call soon.";
+
+    try {
+      await this.smsService.sendSms({ to: phone, body });
+    } catch (error) {
+      console.error("Failed to send confirmation SMS:", error);
+      // Don't throw - SMS failure shouldn't block interest submission
+    }
   }
 
   private async sendConfirmationEmail(

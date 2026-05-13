@@ -6,6 +6,8 @@ const translations = {
     title: 'Thank You!',
     subtitle: 'Your interest has been submitted successfully.',
     emailSent: 'A confirmation email has been sent to',
+    textSent: 'A confirmation text has been sent to',
+    phoneSent: 'We will give you a call at',
     nextStepsTitle: 'What Happens Next?',
     nextSteps: [
       'A staff member will review your submission within 2-3 business days.',
@@ -21,6 +23,8 @@ const translations = {
     title: 'Gracias!',
     subtitle: 'Su interes ha sido enviado exitosamente.',
     emailSent: 'Se ha enviado un correo de confirmacion a',
+    textSent: 'Se ha enviado un mensaje de confirmacion a',
+    phoneSent: 'Le llamaremos al',
     nextStepsTitle: 'Que Sigue?',
     nextSteps: [
       'Un miembro del personal revisara su solicitud dentro de 2-3 dias habiles.',
@@ -36,9 +40,16 @@ const translations = {
 
 export function ConfirmationPage() {
   const location = useLocation();
-  const state = location.state as { email?: string; language?: 'en' | 'es' } | null;
+  const state = location.state as {
+    email?: string;
+    phone?: string;
+    contactMethod?: 'EMAIL' | 'PHONE' | 'TEXT';
+    language?: 'en' | 'es';
+  } | null;
   const language = state?.language ?? 'en';
   const email = state?.email;
+  const phone = state?.phone;
+  const contactMethod = state?.contactMethod;
   const t = translations[language];
 
   return (
@@ -54,9 +65,19 @@ export function ConfirmationPage() {
                 {t.subtitle}
               </Alert>
 
-              {email && (
+              {contactMethod === 'EMAIL' && email && (
                 <p className="margin-bottom-3">
                   {t.emailSent} <strong>{email}</strong>
+                </p>
+              )}
+              {contactMethod === 'TEXT' && phone && (
+                <p className="margin-bottom-3">
+                  {t.textSent} <strong>{phone}</strong>
+                </p>
+              )}
+              {contactMethod === 'PHONE' && phone && (
+                <p className="margin-bottom-3">
+                  {t.phoneSent} <strong>{phone}</strong>
                 </p>
               )}
 

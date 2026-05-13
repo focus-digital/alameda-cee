@@ -5,6 +5,8 @@
 ## Context
 The codebase captures `contactPhone` and `contactMethod` on interest submissions. The `ContactMethod` enum has three values: `EMAIL`, `PHONE`, and `TEXT`. Currently only email is sent on submission and the confirmation page only acknowledges email. This plan adds `SmsService` using Twilio for PHONE/TEXT methods and updates the confirmation page to reflect the correct contact method.
 
+**Twilio account limitations:** Without 10DLC registration, toll-free number verification, or a paid Twilio account, outbound SMS delivery is restricted. Submitted interest forms will appear in the Twilio message logs with a record of the outbound attempt, but the message will fail to reach the recipient's device. This is a Twilio account-tier constraint, not a code defect — the integration is functioning correctly end-to-end. To enable full SMS delivery in a future release, the Twilio account should be upgraded and either toll-free verification (recommended for low-volume transactional messages) or 10DLC registration (required for local long-code A2P traffic in the US) completed.
+
 **Consent & cost considerations:**
 - `TEXT` — by selecting text message as their preferred contact method, the user implicitly consents to receiving an SMS and acknowledges any carrier messaging costs. No additional permission step is needed.
 - `PHONE` — the user has only indicated they want a phone call. Sending them an SMS confirmation is an assumption that they also accept texts and may incur a cost. **Future work:** before texting PHONE users, we should add an explicit opt-in (e.g. a checkbox: "Also send me a text confirmation") to obtain consent. For now, this plan sends the SMS for both PHONE and TEXT, but this should be revisited before production.
