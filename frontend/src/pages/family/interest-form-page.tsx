@@ -189,7 +189,7 @@ export function InterestFormPage() {
       sessionStorage.removeItem('cee_screener_data');
 
       // Navigate to confirmation page
-      navigate('/confirmation', { state: { email: email || undefined, language } });
+      navigate('/confirmation', { state: { email: email || undefined, phone: phone || undefined, contactMethod, language } });
     } catch {
       // Error is handled by mutation state
     }
