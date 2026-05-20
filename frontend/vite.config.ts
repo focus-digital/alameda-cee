@@ -18,7 +18,13 @@ export default defineConfig(({ mode }) => {
       fileParallelism: false,
       env: {
         VITE_ENV: 'test'
-      }
+      },
+      server: {
+        deps: {
+          // Inline USWDS so vi.mock('focus-trap-react') can intercept its import
+          inline: ['@trussworks/react-uswds'],
+        },
+      },
     },
     resolve: {
       alias: {

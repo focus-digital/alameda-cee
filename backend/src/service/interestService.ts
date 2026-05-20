@@ -147,8 +147,8 @@ export class InterestService {
 
     const body = isSpanish
       ? isText
-        ? "Gracias por su interes en el programa CEE. Hemos recibido su solicitud y nos pondremos en contacto con usted pronto por mensaje de texto."
-        : "Gracias por su interes en el programa CEE. Hemos recibido su solicitud y le llamaremos pronto."
+        ? "Gracias por su interés en el programa CEE. Hemos recibido su solicitud y nos pondremos en contacto con usted pronto por mensaje de texto."
+        : "Gracias por su interés en el programa CEE. Hemos recibido su solicitud y le llamaremos pronto."
       : isText
         ? "Thank you for your interest in the CEE program. We received your request and will follow up with you by text soon."
         : "Thank you for your interest in the CEE program. We received your request and will give you a call soon.";
@@ -171,23 +171,23 @@ export class InterestService {
     const isSpanish = language === PreferredLanguage.SPANISH;
 
     const subject = isSpanish
-      ? "Confirmacion de su interes en cuidado infantil"
+      ? "Confirmación de su interés en cuidado infantil"
       : "Confirmation of Your Child Care Interest";
 
     const providerName = interest.provider?.name ?? "the provider";
 
     const html = isSpanish
       ? `
-        <h1>Gracias por expresar su interes</h1>
-        <p>Hemos recibido su solicitud de interes en <strong>${providerName}</strong>.</p>
-        <h2>Proximos pasos</h2>
+        <h1>Gracias por expresar su interés</h1>
+        <p>Hemos recibido su solicitud de interés en <strong>${providerName}</strong>.</p>
+        <h2>Próximos pasos</h2>
         <ul>
-          <li>Un administrador de subsidios revisara su solicitud</li>
-          <li>Se comunicaran con usted para discutir sus opciones y los proximos pasos</li>
-          <li>Este formulario de interes <strong>no garantiza elegibilidad, aprobacion o inscripcion</strong></li>
+          <li>Un administrador de subsidios revisará su solicitud</li>
+          <li>Se comunicarán con usted para discutir sus opciones y los próximos pasos</li>
+          <li>Este formulario de interés <strong>no garantiza elegibilidad, aprobación o inscripción</strong></li>
         </ul>
         <p>Si tiene preguntas, por favor espere a que un administrador se comunique con usted.</p>
-        <p><em>Este es un mensaje automatizado del sistema de Eligibilidad y Matricula Coordinada de First 5 Alameda County.</em></p>
+        <p><em>Este es un mensaje automatizado del sistema de Elegibilidad y Matrícula Coordinada de First 5 Alameda County.</em></p>
       `
       : `
         <h1>Thank You for Expressing Interest</h1>
