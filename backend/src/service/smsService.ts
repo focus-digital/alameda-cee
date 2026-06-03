@@ -5,6 +5,13 @@ export type SendSmsPayload = {
   body: string;
 };
 
+function normalizePhone(raw: string): string {
+  const digits = raw.replace(/\D/g, '');
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length === 11 && digits.startsWith('1')) return `+${digits}`;
+  return raw;
+}
+
 export class SmsService {
   private readonly client: ReturnType<typeof twilio>;
   private readonly from: string;
@@ -24,6 +31,6 @@ export class SmsService {
 
   async sendSms(payload: SendSmsPayload) {
     const { to, body } = payload;
-    return this.client.messages.create({ from: this.from, to, body });
+    return this.client.messages.create({ from: this.from, to: normalizePhone(to), body });
   }
 }

@@ -36,6 +36,7 @@ const translations = {
     submitting: 'Submitting...',
     error: 'There was an error submitting your interest. Please try again.',
     phoneRequired: 'Phone number is required for phone or text contact.',
+    phoneInvalidFormat: 'Please enter a valid 10-digit US phone number.',
     emailRequired: 'Email address is required for email contact.',
     screenerInfo: 'Information from Eligibility Screener',
     zipCode: 'ZIP Code',
@@ -68,6 +69,7 @@ const translations = {
     submitting: 'Enviando...',
     error: 'Hubo un error al enviar su interés. Por favor intente de nuevo.',
     phoneRequired: 'El número de teléfono es requerido para contacto por teléfono o texto.',
+    phoneInvalidFormat: 'Por favor ingrese un número de teléfono válido de 10 dígitos.',
     emailRequired: 'El correo electrónico es requerido para contacto por correo.',
     screenerInfo: 'Información del Cuestionario de Elegibilidad',
     zipCode: 'Código Postal',
@@ -162,6 +164,12 @@ export function InterestFormPage() {
     // Validate contact info
     if ((contactMethod === ContactMethod.PHONE || contactMethod === ContactMethod.TEXT) && !phone) {
       setValidationError(t.phoneRequired);
+      return;
+    }
+    const digits = phone.replace(/\D/g, '');
+    const validLength = digits.length === 10 || (digits.length === 11 && digits.startsWith('1'));
+    if ((contactMethod === ContactMethod.PHONE || contactMethod === ContactMethod.TEXT) && !validLength) {
+      setValidationError(t.phoneInvalidFormat);
       return;
     }
     if (contactMethod === ContactMethod.EMAIL && !email) {
