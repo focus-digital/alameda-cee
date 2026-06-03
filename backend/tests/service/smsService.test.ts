@@ -53,4 +53,42 @@ describe('SmsService', () => {
       body: 'Hello',
     });
   });
+
+  describe('normalizePhone (via sendSms)', () => {
+    it('normalizes a 10-digit number to E.164', async () => {
+      const svc = new SmsService(baseEnv);
+      await svc.sendSms({ to: '5105551234', body: 'Hi' });
+      expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({ to: '+15105551234' }));
+    });
+
+    it('normalizes (510) 555-1234 format to E.164', async () => {
+      const svc = new SmsService(baseEnv);
+      await svc.sendSms({ to: '(510) 555-1234', body: 'Hi' });
+      expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({ to: '+15105551234' }));
+    });
+
+    it('normalizes 510-555-1234 format to E.164', async () => {
+      const svc = new SmsService(baseEnv);
+      await svc.sendSms({ to: '510-555-1234', body: 'Hi' });
+      expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({ to: '+15105551234' }));
+    });
+
+    it('normalizes 11-digit number starting with 1 to E.164', async () => {
+      const svc = new SmsService(baseEnv);
+      await svc.sendSms({ to: '15105551234', body: 'Hi' });
+      expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({ to: '+15105551234' }));
+    });
+
+    it('passes through an already-valid E.164 number unchanged', async () => {
+      const svc = new SmsService(baseEnv);
+      await svc.sendSms({ to: '+15105551234', body: 'Hi' });
+      expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({ to: '+15105551234' }));
+    });
+
+    it('passes through an unrecognized format as-is', async () => {
+      const svc = new SmsService(baseEnv);
+      await svc.sendSms({ to: '510', body: 'Hi' });
+      expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({ to: '510' }));
+    });
+  });
 });
